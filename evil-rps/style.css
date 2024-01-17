@@ -1,0 +1,32 @@
+:root {
+    box-sizing: border-box;
+}
+
+body {
+    background-image: url("https://media1.tenor.com/m/Spmi9HLHEz0AAAAd/despite-all-my-rage.gif");
+}
+
+#player {
+    /* transform: scaleX(-1); */
+}
+
+#healthbar {
+    image-rendering: pixelated;
+    background-image: linear-gradient(to top, red 0 100%, black 100% 100%);
+    -webkit-mask-image: url(cross.png);
+    mask-image: url(cross.png);
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#health {
+    position: absolute;
+    color: white;
+    text-shadow: white 0px 0px 1rem;
+    font-size: 2rem;
+}
