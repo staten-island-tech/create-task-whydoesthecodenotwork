@@ -53,12 +53,12 @@ function updateHealth() {
     const whitepercent = (gameData.health / gameData.maxHealth) * 100;
     document.querySelector(
         "#healthbar"
-    ).style.backgroundImage = `linear-gradient(to top, red 0 ${redpercent}%, yellow ${redpercent}% ${whitepercent}%, black ${whitepercent}% 100%)`;
+    ).style.backgroundImage = `linear-gradient(to top, red 0 ${redpercent}%, yellow ${redpercent}%, white ${whitepercent}%, black ${whitepercent}% 100%)`;
     document.querySelector("#health").innerHTML = gameData.health;
 }
 
 document.querySelector("#hurt").addEventListener("click", () => {
-    damage(30);
+    damage(10);
 });
 document.querySelector("#unhurt").addEventListener("click", () => {
     clearInterval(gameData.hurt);
@@ -66,3 +66,5 @@ document.querySelector("#unhurt").addEventListener("click", () => {
     gameData.damage = 0;
     updateHealth();
 });
+
+updateHealth();
