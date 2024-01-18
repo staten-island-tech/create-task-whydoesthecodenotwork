@@ -27,6 +27,6 @@ body {
 #health {
     position: absolute;
     color: white;
-    text-shadow: white 0px 0px 1rem;
+    text-shadow: black 0px 0px 1rem;
     font-size: 2rem;
 }

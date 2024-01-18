@@ -44,7 +44,7 @@ function damage(x) {
                 clearInterval(gameData.hurt);
                 gameData.hurt = null;
             }
-        }, 50);
+        }, 500);
     }
 }
 
@@ -63,6 +63,9 @@ document.querySelector("#hurt").addEventListener("click", () => {
 document.querySelector("#unhurt").addEventListener("click", () => {
     clearInterval(gameData.hurt);
     gameData.hurt = null;
+    console.log(gameData.health, gameData.damage);
+    // remove all pending damage, then restore 80% of missing health
+    gameData.health += Math.ceil((gameData.maxHealth - (gameData.health - gameData.damage)) * 0.8) - gameData.damage;
     gameData.damage = 0;
     updateHealth();
 });
