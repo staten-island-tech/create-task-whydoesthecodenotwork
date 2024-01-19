@@ -16,21 +16,19 @@ const dom = {
     dialog: document.querySelector("dialog"),
 };
 
-function rps(player, enemy) {
+/* function rps(player, enemy) {
     if (player === enemy) {
         return "tie";
-    } else {
-        /*         
-        const rps = ["r", "s", "p"];
-        const p = rps.indexOf(player);
-        let e = rps.indexOf(enemy) - 1;
-        if (e < 0) {
-            e += 3;
-        }
-        return p === e ? "win" : "lose";
+    } else {        
+        // const rps = ["r", "s", "p"];
+        // const p = rps.indexOf(player);
+        // let e = rps.indexOf(enemy) - 1;
+        // if (e < 0) {
+        //     e += 3;
+        // }
+        // return p === e ? "win" : "lose";
         // this is too hard to explain, so just abuse switch statements
         // it does work though
-        */
         switch (player) {
             case "r":
                 return enemy === "s" ? "win" : "lose";
@@ -40,7 +38,44 @@ function rps(player, enemy) {
                 return enemy === "p" ? "win" : "lose";
         }
     }
+} */
+
+function checkGuess(guess, word) {
+    console.log(guess, word);
+    // TODO: check if the guess is even a word
+    const g = guess.split("");
+    let w = word.split("");
+    const r = Array(g.length).fill("e");
+    // check for greens first
+    for (let i = 0; i < g.length; i++) {
+        console.log(g[i], w[i]);
+        if (g[i] === w[i]) {
+            // clear the matched letter from word to prevent it from matching any other letters in guess
+            w[i] = 0;
+            // clear the matched letter from guess to prevent it from being double checked by yellow
+            g[i] = 0;
+            r[i] = "g";
+        }
+    }
+    // now check for yellows with all greens gone
+    for (let i = 0; i < g.length; i++) {
+        // make sure that letter in the guess isn't already green (0 means it was already matched)
+        if (g[i] !== 0) {
+            // does the letter, even after all greens have been removed, still exist in the word?
+            console.log(`looking for ${g[i]} in ${w}`);
+            const index = w.indexOf(g[i]);
+            if (index !== -1) {
+                console.log(`found it at ${index}`);
+                // clear the matched letter from word to prevent it from matching any other letters in guess
+                w[index] = 0;
+                r[i] = "y";
+            }
+        }
+    }
+    console.log(r);
+    return r;
 }
+checkGuess("crate", "creek");
 
 // it's back
 function nuhUh(element) {
@@ -79,6 +114,7 @@ function damage(x) {
 function updateHealth() {
     const redpercent = ((gameData.health - gameData.damage) / gameData.maxHealth) * 100;
     const whitepercent = (gameData.health / gameData.maxHealth) * 100;
+    // "You're dying. You're dying. You're dying. You're dying. You're dying."
     const color = redpercent <= 0 ? (gameData.damage % 2 === 0 ? "red" : "yellow") : "yellow";
     document.querySelector(
         "#healthbar"
