@@ -9,7 +9,8 @@ const gameData = {
     damage: 0,
     move: null,
     hurt: null,
-    encounter: [{ name: "steve", health: 20, choice: "" }],
+    encounter: [{ name: "steve", health: 20, word: "craft", guesses: [] }],
+    guesses: [],
 };
 
 const dom = {
@@ -148,42 +149,23 @@ function move() {
 }
 
 function combat() {
-    console.log("a");
     dom.dialog.innerHTML = `
     <h1>holy guacamole</h1>
     <div id="enemies"></div>
-    <div id="attacks">
-        <button>r</button>
-        <button>p</button>
-        <button>s</button>
-    </div>
+    <input type='text'>
+    <button>submit</button>
     `;
+    dom.dialog.querySelector("button").addEventListener("click", () => {
+        attack(dom.dialog.querySelector("input").value);
+    });
     updateEnemies();
     dom.dialog.appendChild(document.querySelector("#healthbar"));
-    Array.from(document.querySelectorAll("dialog #attacks button")).forEach((button) => {
-        button.addEventListener("click", () => {
-            console.log(`ujhhh this is ${button.innerHTML}`);
-            attack(button.innerHTML);
-        });
-    });
     dom.dialog.showModal();
 }
 
-function attack(choice) {
+function attack(guess) {
     gameData.encounter.forEach((enemy) => {
-        switch (rps(choice, enemy.choice)) {
-            case "win":
-                console.log("you winner");
-                enemy.health -= gameData.attack;
-                break;
-            case "lose":
-                console.log("you losted");
-                damage(20);
-                break;
-            case "tie":
-                console.log("holy hell");
-                break;
-        }
+        enemy.guesses.push({ guess: checkGuess(guess, enemy.word) });
     });
     console.log(gameData.encounter);
     console.log(
@@ -205,8 +187,24 @@ function attack(choice) {
 function updateEnemies() {
     dom.dialog.querySelector("#enemies").replaceChildren();
     gameData.encounter.forEach((enemy) => {
-        enemy.choice = "rps"[getRandomInt(0, 2)];
-        dom.dialog.querySelector("#enemies").insertAdjacentHTML("beforeend", `<p>this is ${enemy.name} with ${enemy.health}hp and choiced ${enemy.choice}</p>`);
+        updateEnemy(enemy);
+    });
+}
+
+function updateEnemy(enemy) {
+    dom.dialog.querySelector("#enemies").insertAdjacentHTML(
+        "beforeend",
+        `
+        <div class="enemy">
+            <p>this is ${enemy.name}</p>
+            <div class="guesses"></div>
+        </div>
+        `
+    );
+    const enemyElement = dom.dialog.querySelector("#enemies").lastElementChild;
+    enemy.guesses.forEach((guess) => {
+        // here guess is an object with {guess: result}
+        console.log(guess);
     });
 }
 
