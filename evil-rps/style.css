@@ -44,3 +44,49 @@ dialog #attacks {
 dialog #attacks button {
     flex-grow: 1;
 }
+
+#enemies {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.enemy {
+    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    flex-grow: 1;
+    align-content: center;
+    max-width: 40%;
+    min-width: 20%;
+}
+
+.guesses {
+    display: flex;
+    flex-direction: column;
+}
+
+.guess {
+    display: flex;
+}
+
+.guess * {
+    flex-wrap: wrap;
+    display: flex;
+    width: 1rem;
+    height: 1rem;
+    justify-content: center;
+    align-content: center;
+    border: 1px dotted black;
+    color: black;
+}
+
+.y {
+    background-color: yellow;
+}
+.g {
+    background-color: greenyellow;
+}
+.e {
+    background-color: lightgray;
+}

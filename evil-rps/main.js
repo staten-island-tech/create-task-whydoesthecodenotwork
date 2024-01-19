@@ -9,8 +9,10 @@ const gameData = {
     damage: 0,
     move: null,
     hurt: null,
-    encounter: [{ name: "steve", health: 20, word: "craft", guesses: [] }],
-    guesses: [],
+    encounter: [
+        { name: "steve", word: "craft", guesses: [], health: 2 },
+        { name: "josh", word: "drake", guesses: [], health: 5 },
+    ],
 };
 
 const dom = {
@@ -49,7 +51,6 @@ function checkGuess(guess, word) {
     const r = Array(g.length).fill("e");
     // check for greens first
     for (let i = 0; i < g.length; i++) {
-        console.log(g[i], w[i]);
         if (g[i] === w[i]) {
             // clear the matched letter from word to prevent it from matching any other letters in guess
             w[i] = 0;
@@ -63,10 +64,8 @@ function checkGuess(guess, word) {
         // make sure that letter in the guess isn't already green (0 means it was already matched)
         if (g[i] !== 0) {
             // does the letter, even after all greens have been removed, still exist in the word?
-            console.log(`looking for ${g[i]} in ${w}`);
             const index = w.indexOf(g[i]);
             if (index !== -1) {
-                console.log(`found it at ${index}`);
                 // clear the matched letter from word to prevent it from matching any other letters in guess
                 w[index] = 0;
                 r[i] = "y";
@@ -76,7 +75,6 @@ function checkGuess(guess, word) {
     console.log(r);
     return r;
 }
-checkGuess("crate", "creek");
 
 // it's back
 function nuhUh(element) {
@@ -91,6 +89,10 @@ nuhUh(dom.dialog);
 function damage(x) {
     console.log(x);
     gameData.damage += x;
+    if (gameData.damage > gameData.health) {
+        // do not ULTRAKILL the player
+        gameData.damage = gameData.health;
+    }
     if (!gameData.hurt) {
         gameData.hurt = setInterval(() => {
             if (gameData.damage > 0) {
@@ -143,7 +145,7 @@ function dead() {
 
 function move() {
     document.querySelector("#stage progress").value += 0.1;
-    if (getRandomInt(1, 10) === 1) {
+    if (getRandomInt(1, 1) === 1) {
         combat();
     }
 }
@@ -165,19 +167,20 @@ function combat() {
 
 function attack(guess) {
     gameData.encounter.forEach((enemy) => {
-        enemy.guesses.push({ guess: checkGuess(guess, enemy.word) });
+        const result = checkGuess(guess, enemy.word);
+        enemy.guesses.push([guess, result]);
+        // player guessed it
+        if (result.join("") === "g".repeat(result.length)) {
+            enemy.health -= 1;
+            enemy.guesses = [];
+        }
     });
     console.log(gameData.encounter);
-    console.log(
-        gameData.encounter.filter((enemy) => {
-            return enemy.health > 0;
-        })
-    );
-    if (
-        gameData.encounter.filter((enemy) => {
-            return enemy.health > 0;
-        }).length === 0
-    ) {
+    gameData.encounter = gameData.encounter.filter((enemy) => {
+        return enemy.health > 0;
+    });
+
+    if (gameData.encounter.length === 0) {
         joever();
     } else {
         updateEnemies();
@@ -192,6 +195,8 @@ function updateEnemies() {
 }
 
 function updateEnemy(enemy) {
+    console.log(enemy);
+
     dom.dialog.querySelector("#enemies").insertAdjacentHTML(
         "beforeend",
         `
@@ -203,8 +208,18 @@ function updateEnemy(enemy) {
     );
     const enemyElement = dom.dialog.querySelector("#enemies").lastElementChild;
     enemy.guesses.forEach((guess) => {
-        // here guess is an object with {guess: result}
+        // here guess is ["pzazz", ['e'...]]
         console.log(guess);
+        const display = [];
+        for (let i = 0; i < guess[1].length; i++) {
+            display.push(`<p class="${guess[1][i]}">${guess[0][i]}</p>`);
+        }
+        enemyElement.querySelector(".guesses").insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="guess">${display.join("")}</div>
+        `
+        );
     });
 }
 
