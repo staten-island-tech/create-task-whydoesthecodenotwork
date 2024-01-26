@@ -8,17 +8,22 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div id="stage">
-            <progress min="0" max="100" value="0"></progress>
+        <div id="enemies"></div>
+        <form>
+            <input id="guesser" type="text" />
+            <input id="submit" type="submit" />
+        </form>
+        <div id="settings">
+            <select id="transitionLength">
+                <option value="0">"instant"</option>
+                <option value="100">short</option>
+                <option value="250" selected>normal</option>
+                <option value="500">long</option>
+                <option value="1000">suspenseful</option>
+                <option value="5000">cinematic</option>
+                <option value="60000">patience is a virtue</option>
+            </select>
         </div>
-        <div id="healthbar">
-            <p id="health">100</p>
-        </div>
-        <button id="hurt">OWWWWWWWWWW</button>
-        <button id="unhurt">WOOOOOOOOO</button>
-        <dialog>
-            <h1>boo jumpscare</h1>
-        </dialog>
     </body>
     <script type="module" src="/main.js"></script>
 </html>
