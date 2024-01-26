@@ -40,6 +40,10 @@ const settings = {
     transitionLength: 500,
 };
 
+// ANIMATION STUFF???
+const animationFlipIn = [{ transform: "rotateY(0deg)" }, { transform: "rotateY(90deg)" }];
+const animationFlipOut = [{ transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }];
+
 function checkGuess(guess, word) {
     console.log(guess, word);
     const g = guess.split("");
@@ -76,16 +80,35 @@ async function updateEnemy(enemy, guess) {
     const enemyElement = document.querySelector(`#w${enemy.id}`);
     const emptyGuess = enemyElement.querySelector(".guess.empty");
     const letters = Array.from(emptyGuess.children);
-    for (let i = 0; i < guess.length; i++) {
-        await wait(i * (settings.transitionLength / 50));
-        letters[i].className = "revealing";
-        await wait(settings.transitionLength);
-        letters[i].innerHTML = `${guess[i]}`;
-        console.log(gameData.guess);
-        letters[i].className = `${enemy.results[gameData.guess][i]}`;
-    }
-    emptyGuess.classList.remove("empty");
-    await wait(settings.transitionLength);
+    // the design is very human
+    return new Promise((resolve) => {
+        const promises = [];
+        for (let i = 0; i < guess.length; i++) {
+            promises.push(
+                new Promise((letterDone) => {
+                    letters[i].animate(animationFlipIn, {
+                        duration: settings.transitionLength,
+                        easing: "ease-in",
+                        // change constant to increase time between letter flip
+                        delay: i * settings.transitionLength * 0.2,
+                    }).onfinish = () => {
+                        letters[i].innerHTML = `${guess[i]}`;
+                        console.log(enemy.results[gameData.guess]);
+                        letters[i].className = `${enemy.results[gameData.guess][i]}`;
+                        letters[i].animate(animationFlipOut, {
+                            duration: settings.transitionLength,
+                            easing: "ease-out",
+                        }).onfinish = () => {
+                            letterDone();
+                        };
+                    };
+                })
+            );
+        }
+        Promise.all(promises).then(() => {
+            resolve(emptyGuess);
+        });
+    });
 }
 
 function nuhUh(element) {
@@ -126,8 +149,9 @@ document.querySelector("#submit").addEventListener("click", () => {
         console.log("UPDATE!!!!");
         gameData.promises.push(updateEnemy(enemy, document.querySelector("#guesser").value));
     });
-    Promise.all(gameData.promises).then(() => {
+    Promise.all(gameData.promises).then((values) => {
         console.log("we're so barack");
+        values.forEach((value) => value.classList.remove("empty"));
         lock();
         gameData.guess++;
         gameData.promises = [];
@@ -138,7 +162,7 @@ document.querySelector("#submit").addEventListener("click", () => {
 // });
 
 document.querySelector("#transitionLength").addEventListener("change", () => {
-    settings.transitionLength = document.querySelector("#transitionLength").value;
+    settings.transitionLength = parseInt(document.querySelector("#transitionLength").value);
     document.documentElement.style.setProperty("--transitionLength", `${settings.transitionLength}ms`);
     console.log(document.querySelector("#transitionLength").value);
 });

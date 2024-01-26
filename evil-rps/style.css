@@ -32,7 +32,6 @@ body {
 }
 
 .guess * {
-    transition: transform var(--transitionLength);
     flex-wrap: wrap;
     display: flex;
     width: 1rem;
@@ -45,19 +44,6 @@ body {
 
 .e {
     background-color: white;
-    transform: rotateY(180deg);
-}
-
-.revealing {
-    transform: rotateY(90deg);
-    transition-timing-function: ease-in;
-}
-
-.y,
-.g,
-.m {
-    transform: rotateY(0deg);
-    transition-timing-function: ease-out;
 }
 
 .y {
