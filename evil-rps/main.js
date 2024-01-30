@@ -11,9 +11,10 @@ let gameData = {
     enemies: [],
     promises: [],
     lastGuess: "",
+    indices: [],
 };
 
-let settings = {
+let defaultSettings = {
     transitionLength: 500,
     delay: 0.75,
     invalidPenalty: false,
@@ -22,8 +23,11 @@ let settings = {
     incorrect: "#bbbbbb",
     tile: "#000000",
     enraged: false,
+    daily: true,
     // don't save the dark mode value because 1. i want to flashbang people and 2. if it gets too dark i don't want to make people get lost
 };
+
+let settings = structuredClone(defaultSettings);
 
 // updates settings object based on the html elements
 function settingSettings() {
@@ -282,27 +286,27 @@ document.querySelector("#closeSettings").addEventListener("click", () => {
 Array.from(document.querySelectorAll("#settings *")).forEach((setting) => {
     setting.addEventListener("change", settingSettings);
 });
-// this is NOT part of the in-game settings popup, but it is part of settings. i've made a mess..
+// these are NOT part of the in-game settings popup, but it is part of settings. i've made a mess..
 document.querySelector("#invalidPenalty").addEventListener("change", () => {
     settingSettings();
     saveSettings();
 });
+document.querySelector("#daily").addEventListener("change", () => {
+    settingSettings();
+    saveSettings();
+});
+
 // i like setting my sliders to multiples of 5, so specific code to let me do that
 // also this needs a parsefloat because guess what a range input's value is? a string. thanks javascript
 document.querySelector("#delay").addEventListener("input", () => {
     document.getElementById("delayOutput").innerHTML = parseFloat(document.querySelector("#delay").value).toFixed(2);
 });
 document.querySelector("#reset").addEventListener("click", () => {
-    settings = {
-        transitionLength: 500,
-        delay: 0.75,
-        correct: "#00ff00",
-        misplaced: "#ffff00",
-        incorrect: "#bbbbbb",
-        tile: "#000000",
-        invalidPenalty: settings.invalidPenalty,
-        enraged: false,
-    };
+    const invalidPenalty = settings.invalidPenalty;
+    const daily = settings.daily;
+    settings = structuredClone(defaultSettings);
+    settings.invalidPenalty = invalidPenalty;
+    settings.daily = daily;
     // because dark isn't in settings
     document.querySelector("#dark").value = 0;
     // update html elements using the newly set settings
@@ -381,12 +385,23 @@ document.querySelector("#start").addEventListener("click", () => {
     gameData.maxGuesses = document.querySelector("#guessCount").value;
     const time = new Date(Date.now());
     for (let i = 0; i < document.querySelector("#enemyCount").value; i++) {
+        console.log(settings.daily);
+        let wordIndex = 0;
+        if (settings.daily) {
+            wordIndex = Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309;
+        } else {
+            while (1) {
+                wordIndex = getRandomInt(0, 2308);
+                if (!gameData.indices.includes(wordIndex)) {
+                    break;
+                }
+            }
+            gameData.indices.push(wordIndex);
+        }
         gameData.enemies.push({
             id: i,
             // this is my awful solution to getting a random set of words every day. rng tables?? never heard of em
-            word: solutions[
-                Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309
-            ],
+            word: solutions[wordIndex],
             results: [],
             solved: false,
         });
