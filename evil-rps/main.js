@@ -1,51 +1,80 @@
+import { possibleGuesses, solutions } from "/words.js";
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - 1)) + min;
 }
-
-function wait(ms) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
-
-// 1 word = 6 guesses
-// 2 words = 7 guesses
-// 3 words = 8 guesses
-// 4 words = 9 guesses
-// 8 words = 13 guesses
-// 16 words = 21 guesses
 
 let gameData = {
     guess: 0,
     guesses: [],
     maxGuesses: 7,
-    enemies: [
-        {
-            id: 0,
-            word: "craft",
-            results: [],
-        },
-        {
-            id: 1,
-            word: "drake",
-            results: [],
-        },
-    ],
+    enemies: [],
     promises: [],
+    lastGuess: "",
 };
 
-const settings = {
+let settings = {
     transitionLength: 500,
+    delay: 0.75,
+    invalidPenalty: false,
+    correct: "#00ff00",
+    misplaced: "#ffff00",
+    incorrect: "#bbbbbb",
+    tile: "#000000",
+    enraged: false,
+    // don't save the dark mode value because 1. i want to flashbang people and 2. if it gets too dark i don't want to make people get lost
 };
 
-// ANIMATION STUFF???
-const animationFlipIn = [{ transform: "rotateY(0deg)" }, { transform: "rotateY(90deg)" }];
-const animationFlipOut = [{ transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }];
+// updates settings object based on the html elements
+function settingSettings() {
+    Object.keys(settings).forEach((key) => {
+        const element = document.getElementById(key);
+        switch (element.type) {
+            case "checkbox":
+                settings[key] = element.checked;
+                break;
+            default:
+                settings[key] = element.value;
+                break;
+        }
+    });
+
+    updateSettings();
+}
+
+// HAHA! hardcoded nonsense jumpscare
+function updateSettings() {
+    settings.transitionLength = parseInt(settings.transitionLength);
+    document.documentElement.style.setProperty("--transitionLength", `${settings.transitionLength}ms`);
+    settings.delay = parseFloat(document.querySelector("#delay").value);
+    document.getElementById("delayOutput").innerHTML = settings.delay.toFixed(2);
+    document.documentElement.style.setProperty("--dark", `${document.querySelector("#dark").value}`);
+    document.body.className = settings.enraged ? "enraged" : "";
+    document.documentElement.style.setProperty("--correct", settings.correct);
+    document.documentElement.style.setProperty("--misplaced", settings.misplaced);
+    document.documentElement.style.setProperty("--incorrect", settings.incorrect);
+    document.documentElement.style.setProperty("--tile", settings.tile);
+}
+
+// updates html elements based on settings object. this doesn't touch dark
+function updateHTML() {
+    Object.keys(settings).forEach((key) => {
+        const element = document.querySelector(`#${key}`);
+        switch (element.type) {
+            case "checkbox":
+                element.checked = settings[key];
+                break;
+            default:
+                element.value = settings[key];
+                break;
+        }
+    });
+
+    // a singular hardcoded line just as a reminder that nothing in life is perfect (especially my code)
+    document.getElementById("delayOutput").innerHTML = settings.delay.toFixed(2);
+}
 
 function checkGuess(guess, word) {
-    console.log(guess, word);
     const g = guess.split("");
     let w = word.split("");
     const r = Array(g.length).fill("m");
@@ -72,30 +101,28 @@ function checkGuess(guess, word) {
             }
         }
     }
-    console.log(r);
     return r;
 }
 
 async function updateEnemy(enemy, guess) {
     const enemyElement = document.querySelector(`#w${enemy.id}`);
     const emptyGuess = enemyElement.querySelector(".guess.empty");
-    const letters = Array.from(emptyGuess.children);
+    const letters = emptyGuess.children;
     // the design is very human
     return new Promise((resolve) => {
         const promises = [];
         for (let i = 0; i < guess.length; i++) {
             promises.push(
                 new Promise((letterDone) => {
-                    letters[i].animate(animationFlipIn, {
+                    letters[i].animate([{ transform: "rotateY(0deg)" }, { transform: "rotateY(90deg)" }], {
                         duration: settings.transitionLength,
                         easing: "ease-in",
-                        // change constant to increase time between letter flip
-                        delay: i * settings.transitionLength * 0.2,
+                        // change constant to increase time between letter flip (1 makes it so animation will start when previous animation is done through correlation not causation)
+                        delay: i * settings.transitionLength * settings.delay,
                     }).onfinish = () => {
-                        letters[i].innerHTML = `${guess[i]}`;
-                        console.log(enemy.results[gameData.guess]);
-                        letters[i].className = `${enemy.results[gameData.guess][i]}`;
-                        letters[i].animate(animationFlipOut, {
+                        letters[i].innerHTML = guess[i];
+                        letters[i].className = enemy.results[gameData.guess][i];
+                        letters[i].animate([{ transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }], {
                             duration: settings.transitionLength,
                             easing: "ease-out",
                         }).onfinish = () => {
@@ -111,14 +138,7 @@ async function updateEnemy(enemy, guess) {
     });
 }
 
-function nuhUh(element) {
-    element.addEventListener("click", (event) => {
-        event.preventDefault();
-    });
-}
-nuhUh(document.querySelector("#submit"));
-
-function createEnemy(id) {
+function spawnEnemy(id) {
     document.querySelector("#enemies").insertAdjacentHTML("beforeend", `<div class="enemy" id="w${id}"><div class="guesses"></div></div>`);
     const enemyElement = document.querySelector(`#w${id}`);
     for (let i = 0; i < gameData.maxGuesses; i++) {
@@ -126,48 +146,255 @@ function createEnemy(id) {
             "beforeend",
             `
             <div class="guess empty">
-            <p class="e"></p>
-            <p class="e"></p>
-            <p class="e"></p>
-            <p class="e"></p>
-            <p class="e"></p>
+            <span class="e"></span>
+            <span class="e"></span>
+            <span class="e"></span>
+            <span class="e"></span>
+            <span class="e"></span>
             </div>
             `
         );
     }
 }
 
-gameData.enemies.forEach((enemy) => {
-    createEnemy(enemy.id);
-});
+document.querySelector("#submit").addEventListener("click", (event) => {
+    // do NOT refresh the page (default behavior for a submit input)
+    event.preventDefault();
+    let guess = document.querySelector("#guesser").value;
+    if (guess.length !== 5) {
+        alert("guess must be 5 letters");
+        if (settings.invalidPenalty) {
+            document.querySelector("#guesser").value = "💀";
+            // string of 5 skull emojis has a length of 10, causing everything to burst into flames
+            guess = "-----";
+        } else {
+            return;
+        }
+    } else {
+        if (!possibleGuesses.includes(guess)) {
+            alert("guess is NOT a valid word");
+            if (settings.invalidPenalty) {
+                document.querySelector("#guesser").value = "💀";
+                guess = "-----";
+            } else {
+                return;
+            }
+        }
+    }
 
-document.querySelector("#submit").addEventListener("click", () => {
     lock();
-    // TODO: check if the guess is even a word
-    gameData.enemies.forEach(async (enemy) => {
-        enemy.results.push(checkGuess(document.querySelector("#guesser").value, enemy.word));
-        console.log("UPDATE!!!!");
-        gameData.promises.push(updateEnemy(enemy, document.querySelector("#guesser").value));
-    });
+    gameData.enemies
+        .filter((enemy) => {
+            return !enemy.solved;
+        })
+        .forEach(async (enemy) => {
+            const result = checkGuess(guess, enemy.word);
+            enemy.results.push(result);
+            if (result.join("") === "ggggg") {
+                enemy.solved = true;
+            }
+            gameData.promises.push(updateEnemy(enemy, guess));
+        });
     Promise.all(gameData.promises).then((values) => {
-        console.log("we're so barack");
+        // this removes the empty class from the just used guesses
         values.forEach((value) => value.classList.remove("empty"));
-        lock();
+        document.querySelector("#guesser").value = "";
         gameData.guess++;
         gameData.promises = [];
+        // solve enemies once all animations have completed
+        const solvedEnemies = gameData.enemies.filter((enemy) => {
+            return enemy.solved;
+        });
+        solvedEnemies.forEach((enemy) => {
+            document.querySelector(`#w${enemy.id}`).classList.add("solved");
+        });
+        if (solvedEnemies.length === gameData.enemies.length) {
+            alert("you win. oho yeah!");
+            return;
+        } else if (gameData.guess >= gameData.maxGuesses) {
+            alert("you did NOT win. oho no");
+            return;
+        }
+        lock();
+        document.querySelector("#guesser").focus();
     });
 });
 
-// document.querySelector("#settings").children.forEach((element) => {
-// });
+document.querySelector("#guesser").addEventListener("input", () => {
+    let guess = document.querySelector("#guesser").value;
 
-document.querySelector("#transitionLength").addEventListener("change", () => {
-    settings.transitionLength = parseInt(document.querySelector("#transitionLength").value);
-    document.documentElement.style.setProperty("--transitionLength", `${settings.transitionLength}ms`);
-    console.log(document.querySelector("#transitionLength").value);
+    // nothing here supports uppercase
+    guess = guess.toLowerCase();
+
+    // remove the spaces because they are EVIL
+    guess = guess.replace(" ", "");
+
+    // do NOT go over 5 letters
+    // yes the input field has maxlength but uhhhhhhh never trust the user or something
+    if (guess.length > 5) {
+        guess = guess.slice(0, 5);
+    }
+
+    document.querySelector("#guesser").value = guess;
+
+    Array.from(document.querySelectorAll(".enemy:not(.solved) .guesses")).forEach((guesses) => {
+        const emptyGuess = guesses.querySelector(".guess.empty");
+
+        for (let i = 0; i < 5; i++) {
+            // evil ternary isn't real; evil ternary:
+            emptyGuess.children[i].innerHTML = i < guess.length ? guess[i] : "";
+        }
+
+        // this whole thing is to determine if the last letter should bounce or not
+        if (guess.length > gameData.lastGuess.length || (guess.slice(-1) !== gameData.lastGuess[guess.length - 1] && guess.length > 0)) {
+            emptyGuess.children[guess.length - 1].animate([{ transform: "scale(1)" }, { transform: "scale(1.1)" }], {
+                duration: 100,
+                iterations: 2,
+                direction: "alternate",
+                easing: "linear",
+            });
+        }
+    });
+    gameData.lastGuess = guess;
+});
+
+document.querySelector("#openSettings").addEventListener("click", () => {
+    document.querySelector("#settings").style.display = "flex";
+    document.querySelector("#settings").showModal();
+});
+
+document.querySelector("#closeSettings").addEventListener("keydown", (key) => {
+    if (key.key === "Escape") {
+        key.preventDefault();
+        saveSettings();
+        document.querySelector("#settings").style.display = "none";
+        document.querySelector("#settings").close();
+    }
+});
+
+document.querySelector("#closeSettings").addEventListener("click", () => {
+    saveSettings();
+    document.querySelector("#settings").style.display = "none";
+    document.querySelector("#settings").close();
+});
+
+// this updates all the settings when even one is changed, but i don't think this will explode anyone's computer
+Array.from(document.querySelectorAll("#settings *")).forEach((setting) => {
+    setting.addEventListener("change", settingSettings);
+});
+// this is NOT part of the in-game settings popup, but it is part of settings. i've made a mess..
+document.querySelector("#invalidPenalty").addEventListener("change", () => {
+    settingSettings();
+    saveSettings();
+});
+// i like setting my sliders to multiples of 5, so specific code to let me do that
+// also this needs a parsefloat because guess what a range input's value is? a string. thanks javascript
+document.querySelector("#delay").addEventListener("input", () => {
+    document.getElementById("delayOutput").innerHTML = parseFloat(document.querySelector("#delay").value).toFixed(2);
+});
+document.querySelector("#reset").addEventListener("click", () => {
+    settings = {
+        transitionLength: 500,
+        delay: 0.75,
+        correct: "#00ff00",
+        misplaced: "#ffff00",
+        incorrect: "#bbbbbb",
+        tile: "#000000",
+        invalidPenalty: settings.invalidPenalty,
+        enraged: false,
+    };
+    // because dark isn't in settings
+    document.querySelector("#dark").value = 0;
+    // update html elements using the newly set settings
+    updateHTML();
+    // then do the hardcoded nonsense
+    updateSettings();
 });
 
 function lock() {
-    document.querySelector("#submit").disabled = !document.querySelector("#submit").disabled;
-    document.querySelector("#transitionLength").disabled = !document.querySelector("#transitionLength").disabled;
+    // all of these elements should share the same disabled state
+    const isDisabled = document.querySelector("#guesser").disabled;
+    document.querySelector("#guesser").disabled = !isDisabled;
+    document.querySelector("#submit").disabled = !isDisabled;
+    document.querySelector("#openSettings").disabled = !isDisabled;
 }
+
+function saveSettings() {
+    console.log("saved settings");
+    localStorage.settings = JSON.stringify(settings);
+}
+
+// game setup
+// storageAvailable() is from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+
+function storageAvailable(type) {
+    let storage;
+    try {
+        storage = window[type];
+        const x = "__storage_test__";
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    } catch (e) {
+        return (
+            e instanceof DOMException &&
+            // everything except Firefox
+            (e.code === 22 ||
+                // Firefox
+                e.code === 1014 ||
+                // test name field too, because code might not be present
+                // everything except Firefox
+                e.name === "QuotaExceededError" ||
+                // Firefox
+                e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            storage &&
+            storage.length !== 0
+        );
+    }
+}
+if (storageAvailable("localStorage")) {
+    // load the settings
+    if (localStorage.settings) {
+        settings = JSON.parse(localStorage.settings);
+        updateHTML();
+    }
+}
+document.querySelector("#gamemode").addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        event.preventDefault();
+    }
+});
+document.querySelector("#gamemode").style.display = "flex";
+document.querySelector("#gamemode").showModal();
+document.querySelector("#gamemodeSelector").addEventListener("change", () => {
+    document.querySelector("#enemyCount").value = document.querySelector("#gamemodeSelector").value;
+    document.querySelector("#guessCount").value = [6, 7, 8, 9, 13, 21][document.querySelector("#gamemodeSelector").selectedIndex];
+});
+function blankPreset() {
+    document.querySelector("#gamemodeSelector").value = "";
+}
+document.querySelector("#enemyCount").addEventListener("input", blankPreset);
+document.querySelector("#guessCount").addEventListener("input", blankPreset);
+document.querySelector("#start").addEventListener("click", () => {
+    document.querySelector("#enemies").replaceChildren();
+    gameData.maxGuesses = document.querySelector("#guessCount").value;
+    const time = new Date(Date.now());
+    for (let i = 0; i < document.querySelector("#enemyCount").value; i++) {
+        gameData.enemies.push({
+            id: i,
+            // this is my awful solution to getting a random set of words every day. rng tables?? never heard of em
+            word: solutions[
+                Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309
+            ],
+            results: [],
+            solved: false,
+        });
+    }
+    gameData.enemies.forEach((enemy) => {
+        spawnEnemy(enemy.id);
+    });
+    settingSettings();
+    document.querySelector("#gamemode").style.display = "none";
+    document.querySelector("#gamemode").close();
+});

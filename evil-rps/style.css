@@ -1,57 +1,134 @@
 :root {
     box-sizing: border-box;
     --transitionLength: 500ms;
+    --dark: 0;
+    --tile: #000000;
 }
 
-body {
-    background-image: url("https://media1.tenor.com/m/Spmi9HLHEz0AAAAd/despite-all-my-rage.gif");
+body.enraged {
+    background-image: url("rage.gif");
+}
+
+#enemies {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .enemy {
     flex-wrap: wrap;
     display: flex;
     flex-direction: column;
-    border: 2px solid black;
+    border: 2px solid #000000;
     flex-grow: 1;
     align-content: center;
-    max-width: 40%;
-    min-width: 20%;
-    background-color: whitesmoke;
+    min-width: 10ch;
+    background-color: #f5f5f5;
+    padding: 0.5rem 0.5rem;
+}
+
+.enemy.solved {
+    background-color: #d3d3d3;
 }
 
 .guesses {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
 }
 
 .guess.empty {
     display: flex;
 }
+
 .guess {
     display: flex;
 }
 
+/* letters of a word */
 .guess * {
     flex-wrap: wrap;
     display: flex;
-    width: 1rem;
-    height: 1rem;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
     justify-content: center;
     align-content: center;
-    border: 1px dotted black;
-    color: black;
+    border: 1px solid #000000;
+    color: var(--tile);
+    text-rendering: optimizeLegibility;
+}
+
+/* blank letters of a solved word */
+.solved .guess .e {
+    background-color: #808080;
+}
+
+/* blank letters of an unsolved word */
+.guess .e {
+    border: 1px dotted #000000;
 }
 
 .e {
     background-color: white;
 }
 
-.y {
-    background-color: yellow;
-}
 .g {
-    background-color: greenyellow;
+    background-color: var(--correct);
+}
+.y {
+    background-color: var(--misplaced);
 }
 .m {
-    background-color: lightgray;
+    background-color: var(--incorrect);
+}
+
+h1 {
+    text-shadow: 1px -1px 0px #ff0000;
+    background-color: whitesmoke;
+}
+
+label {
+    display: flex;
+    align-items: center;
+}
+
+label * {
+    margin-left: 5px;
+}
+
+#guesser {
+    width: 5ch;
+    font-family: monospace;
+}
+
+dialog {
+    flex-direction: column;
+}
+
+dialog#gamemode::backdrop {
+    background-image: radial-gradient(#ffffff, #000000);
+    opacity: 1;
+}
+
+dialog#settings::backdrop {
+    display: none;
+}
+
+#dimmer {
+    pointer-events: none;
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    opacity: var(--dark);
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#reset {
+    background-color: #ffaaaa;
+    font-size: 2rem;
 }

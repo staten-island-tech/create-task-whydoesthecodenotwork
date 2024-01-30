@@ -4,26 +4,82 @@
         <meta charset="UTF-8" />
         <link rel="icon" type="image/svg+xml" href="/vite.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Vite App</title>
+        <title>whadel</title>
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <h1>whadel<span style="margin: 1px; font-size: large">beta???</span></h1>
+
         <div id="enemies"></div>
         <form>
-            <input id="guesser" type="text" />
-            <input id="submit" type="submit" />
+            <input id="guesser" type="text" placeholder="guess" spellcheck="false" minlength="5" maxlength="5" title="enter your guess here" />
+            <input id="submit" type="submit" value="submit your guess" />
         </form>
-        <div id="settings">
-            <select id="transitionLength">
-                <option value="0">instant</option>
-                <option value="100">short</option>
-                <option value="250" selected>normal</option>
-                <option value="500">long</option>
-                <option value="1000">suspenseful</option>
-                <option value="5000">cinematic</option>
-                <option value="60000">patience is a virtue</option>
-            </select>
-        </div>
+        <button id="openSettings">open settings</button>
+        <dialog id="gamemode">
+            <h2>pre-game setup</h2>
+            <label
+                >select a preset<select id="gamemodeSelector">
+                    <option value="1" selected>wordle</option>
+                    <option value="2">duordle</option>
+                    <option value="3">trirdle</option>
+                    <option value="4">quordle</option>
+                    <option value="8">octordle</option>
+                    <option value="16">16rdle</option>
+                </select>
+            </label>
+            <label>penalty for entering a bad guess?<input type="checkbox" name="invalidPenalty" id="invalidPenalty" /></label>
+            <details>
+                <summary>advanced settings</summary>
+                <small>notice: settings relating to appearance are accessible in-game</small>
+                <label>how many words will you be solving?<input type="number" name="enemyCount" id="enemyCount" value="1" /></label>
+                <label>how many guesses do you want?<input type="number" name="guessCount" id="guessCount" value="6" /></label>
+            </details>
+            <a href="https://www.youtube.com/watch?v=lv4Zg-209MY" target="_blank">HELP! I don't know how to play Wordle!</a>
+            <a href="https://www.youtube.com/watch?v=NmF8B2HBzec" target="_blank">HELP! I don't know how to play multiple Wordles at once!</a>
+            <input type="button" id="start" value="all done" />
+        </dialog>
+        <dialog id="settings">
+            <fieldset>
+                <legend>colors</legend>
+                <label>tile color for correct letters<input type="color" name="correct" id="correct" value="#00ff00" /></label>
+                <label>tile color for misplaced letters<input type="color" name="misplaced" id="misplaced" value="#ffff00" /></label>
+                <label>tile color for incorrect letters<input type="color" name="incorrect" id="incorrect" value="#bbbbbb" /></label>
+                <label>font color for tiles<input type="color" name="tile" id="tile" value="#000000" /></label>
+                <label title="a rather creative implementation of dark mode"
+                    ><q>dark mode</q><input type="range" name="dark" id="dark" min="0" max="1" step="0.01" value="0"
+                /></label>
+            </fieldset>
+            <fieldset>
+                <legend>speed</legend>
+                <label>
+                    letter reveal speed
+                    <select id="transitionLength">
+                        <option value="0">instant</option>
+                        <option value="100">brief</option>
+                        <option value="250">short</option>
+                        <option value="500" selected>normal</option>
+                        <option value="750">long</option>
+                        <option value="1000">suspenseful</option>
+                        <option value="5000">cinematic</option>
+                        <option value="60000" title="no seriously don't choose this one">patience is a virtue (!)</option>
+                    </select>
+                </label>
+                <label
+                >delay between letter reveals</q><input type="range" name="delay" id="delay" min="0" max="1" step="0.01" value="0.75"
+            /><output id="delayOutput">0.75</output></label>
+            </fieldset>
+            <fieldset>
+                <legend>despite all your rage?</legend>
+                <label>despite all my rage.<input type="checkbox" name="enraged" id="enraged" /></label>
+            </fieldset>
+            <fieldset>
+                <legend>big red reset button</legend>
+                <button id="reset">reset all settings?</button>
+            </fieldset>
+            <button id="closeSettings">all done</button>
+        </dialog>
+        <div id="dimmer"></div>
     </body>
     <script type="module" src="/main.js"></script>
 </html>
