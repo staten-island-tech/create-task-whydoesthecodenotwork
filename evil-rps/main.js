@@ -1,13 +1,13 @@
 import { possibleGuesses, solutions } from "/words.js";
 
 function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - 1)) + min;
+    return Math.floor(Math.random() * max) + min;
 }
 
 let gameData = {
     guess: 0,
     guesses: [],
-    maxGuesses: 7,
+    maxGuesses: 0,
     enemies: [],
     promises: [],
     lastGuess: "",
@@ -357,6 +357,7 @@ function storageAvailable(type) {
         );
     }
 }
+
 if (storageAvailable("localStorage")) {
     // load the settings
     if (localStorage.settings) {
@@ -384,20 +385,27 @@ document.querySelector("#start").addEventListener("click", () => {
     document.querySelector("#enemies").replaceChildren();
     gameData.maxGuesses = document.querySelector("#guessCount").value;
     const time = new Date(Date.now());
+    // fill array that we will pick from
+    gameData.indices = [];
+    for (let i = 0; i < 2309; i++) {
+        gameData.indices.push(i);
+    }
     for (let i = 0; i < document.querySelector("#enemyCount").value; i++) {
         console.log(settings.daily);
         let wordIndex = 0;
         if (settings.daily) {
             wordIndex = Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309;
         } else {
-            while (1) {
+            if (gameData.indices.length > 0) {
+                const index = getRandomInt(0, gameData.indices.length - 1);
+                wordIndex = gameData.indices[index];
+                gameData.indices.splice(index, 1);
+            } else {
+                // if you are playing with more than 2309 words, that is your personal problem
                 wordIndex = getRandomInt(0, 2308);
-                if (!gameData.indices.includes(wordIndex)) {
-                    break;
-                }
             }
-            gameData.indices.push(wordIndex);
         }
+        console.log(wordIndex, gameData.indices);
         gameData.enemies.push({
             id: i,
             // this is my awful solution to getting a random set of words every day. rng tables?? never heard of em
