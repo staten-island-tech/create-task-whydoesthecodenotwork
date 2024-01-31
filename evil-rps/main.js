@@ -143,8 +143,24 @@ async function updateEnemy(enemy, guess) {
 }
 
 function spawnEnemy(id) {
-    document.querySelector("#enemies").insertAdjacentHTML("beforeend", `<div class="enemy" id="w${id}"><div class="guesses"></div></div>`);
+    document.querySelector("#enemies").insertAdjacentHTML(
+        "beforeend",
+        `<div class="enemy" id="w${id}">
+            <div class="guesses"></div>
+            <details class="keyboardToggle">
+                <summary>show keyboard</summary>
+                <div class="keyboard"></div>
+            </details>
+            </div>`
+    );
     const enemyElement = document.querySelector(`#w${id}`);
+    const keyboardToggle = enemyElement.querySelector(".keyboardToggle");
+    keyboardToggle.addEventListener("toggle", () => {
+        if (keyboardToggle.open) {
+            console.log("huahuahauahua");
+            keyboardToggle.querySelector(".keyboard").innerHTML = createKeyboard(id);
+        }
+    });
     for (let i = 0; i < gameData.maxGuesses; i++) {
         enemyElement.querySelector(".guesses").insertAdjacentHTML(
             "beforeend",
@@ -159,6 +175,10 @@ function spawnEnemy(id) {
             `
         );
     }
+}
+
+function createKeyboard() {
+    console.log("nuh uh");
 }
 
 document.querySelector("#submit").addEventListener("click", (event) => {
@@ -213,16 +233,44 @@ document.querySelector("#submit").addEventListener("click", (event) => {
             document.querySelector(`#w${enemy.id}`).classList.add("solved");
         });
         if (solvedEnemies.length === gameData.enemies.length) {
-            alert("you win. oho yeah!");
+            // alert("you win. oho yeah!");
+            promptContinue(true);
             return;
         } else if (gameData.guess >= gameData.maxGuesses) {
-            alert("you did NOT win. oho no");
+            // alert("you did NOT win. oho no");
+            promptContinue(false);
             return;
         }
         lock();
         document.querySelector("#guesser").focus();
     });
 });
+
+function promptContinue(gaming) {
+    // if player wins in daily mode, they shouldn't be told to play daily mode again
+    settings.daily = false;
+    saveSettings();
+    // gaming is bool representing if player won
+    const prompt = document.querySelector("#continue");
+    prompt.innerHTML = `
+    <h2>${gaming ? "congratulations you're winner" : "you did NOT win"}</h2>
+    <h3>you ${gaming ? "got the word" : "did NOT get the word"} in ${gameData.guess} guess${gameData.guesses > 1 ? "es" : ""}</h3>
+    <button id="promptRefresh">continue gaming</button>
+    <button id="promptClose">ok</button>
+    `;
+    const refresh = prompt.querySelector("#promptRefresh");
+    refresh.addEventListener("click", () => {
+        // EVIL way of restarting the game (it refreshes the page haha)
+        location.reload();
+    });
+    prompt.querySelector("#promptClose").addEventListener("click", () => {
+        // still give the player an option to restart
+        refresh.innerHTML = "restart the game";
+        document.body.after(refresh);
+        prompt.close();
+    });
+    prompt.showModal();
+}
 
 document.querySelector("#guesser").addEventListener("input", () => {
     let guess = document.querySelector("#guesser").value;
@@ -324,7 +372,7 @@ function lock() {
 }
 
 function saveSettings() {
-    console.log("saved settings");
+    // console.log("saved settings");
     localStorage.settings = JSON.stringify(settings);
 }
 
@@ -391,7 +439,6 @@ document.querySelector("#start").addEventListener("click", () => {
         gameData.indices.push(i);
     }
     for (let i = 0; i < document.querySelector("#enemyCount").value; i++) {
-        console.log(settings.daily);
         let wordIndex = 0;
         if (settings.daily) {
             wordIndex = Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309;
@@ -405,13 +452,39 @@ document.querySelector("#start").addEventListener("click", () => {
                 wordIndex = getRandomInt(0, 2308);
             }
         }
-        console.log(wordIndex, gameData.indices);
         gameData.enemies.push({
             id: i,
             // this is my awful solution to getting a random set of words every day. rng tables?? never heard of em
             word: solutions[wordIndex],
             results: [],
             solved: false,
+            intel: {
+                a: "?",
+                b: "?",
+                c: "?",
+                d: "?",
+                e: "?",
+                f: "?",
+                g: "?",
+                h: "?",
+                i: "?",
+                j: "?",
+                k: "?",
+                l: "?",
+                m: "?",
+                o: "?",
+                p: "?",
+                q: "?",
+                r: "?",
+                s: "?",
+                t: "?",
+                u: "?",
+                v: "?",
+                w: "?",
+                x: "?",
+                y: "?",
+                z: "?",
+            },
         });
     }
     gameData.enemies.forEach((enemy) => {
