@@ -1,4 +1,4 @@
-import { possibleGuesses, solutions } from "/words.js";
+import { alphabet, possibleGuesses, solutions } from "/words.js";
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * max) + min;
@@ -125,7 +125,9 @@ async function updateEnemy(enemy, guess) {
                         delay: i * settings.transitionLength * settings.delay,
                     }).onfinish = () => {
                         letters[i].innerHTML = guess[i];
-                        letters[i].className = enemy.results[gameData.guess][i];
+                        letters[i].classList.remove("e");
+                        letters[i].classList.add(enemy.results[gameData.guess][i]);
+
                         letters[i].animate([{ transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }], {
                             duration: settings.transitionLength,
                             easing: "ease-out",
@@ -137,6 +139,7 @@ async function updateEnemy(enemy, guess) {
             );
         }
         Promise.all(promises).then(() => {
+            enemyElement.querySelector(".keyboard").innerHTML = createKeyboard(enemy.id);
             resolve(emptyGuess);
         });
     });
@@ -154,31 +157,47 @@ function spawnEnemy(id) {
             </div>`
     );
     const enemyElement = document.querySelector(`#w${id}`);
-    const keyboardToggle = enemyElement.querySelector(".keyboardToggle");
-    keyboardToggle.addEventListener("toggle", () => {
-        if (keyboardToggle.open) {
-            console.log("huahuahauahua");
-            keyboardToggle.querySelector(".keyboard").innerHTML = createKeyboard(id);
-        }
-    });
+    enemyElement.querySelector(".keyboard").innerHTML = createKeyboard(id);
     for (let i = 0; i < gameData.maxGuesses; i++) {
         enemyElement.querySelector(".guesses").insertAdjacentHTML(
             "beforeend",
             `
             <div class="guess empty">
-            <span class="e"></span>
-            <span class="e"></span>
-            <span class="e"></span>
-            <span class="e"></span>
-            <span class="e"></span>
+            <span class="e letter"></span>
+            <span class="e letter"></span>
+            <span class="e letter"></span>
+            <span class="e letter"></span>
+            <span class="e letter"></span>
             </div>
             `
         );
     }
 }
 
-function createKeyboard() {
+function createKeyboard(id) {
+    const enemy = gameData.enemies[id];
+    console.log(enemy);
     console.log("nuh uh");
+    const rows = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+        ["z", "x", "c", "v", "b", "n", "m"],
+    ];
+    // new Array(3).fill([]) makes all arrays of output be the same because fill just does that
+    let output = [[], [], []];
+
+    // EVIL nested foreach with I counter
+    let i = 0;
+    rows.forEach((row) => {
+        row.forEach((letter) => {
+            output[i] += `<span class='${enemy.intel[letter]} letter'>${letter}</span>`;
+        });
+        i++;
+    });
+
+    return `<div class="row">${output[0]}</div>
+    <div class="row">${output[1]}</div>
+    <div class="row">${output[2]}</div>`;
 }
 
 document.querySelector("#submit").addEventListener("click", (event) => {
@@ -214,13 +233,22 @@ document.querySelector("#submit").addEventListener("click", (event) => {
         .forEach(async (enemy) => {
             const result = checkGuess(guess, enemy.word);
             enemy.results.push(result);
+            for (let i = 0; i < 5; i++) {
+                // greens yellow grey priority order, don't override higher priorities
+                const priority = ["e", "m", "y", "g"];
+                const letter = guess[i];
+                const color = result[i];
+                if (priority.indexOf(color) > priority.indexOf(enemy.intel[letter])) {
+                    enemy.intel[letter] = color;
+                }
+            }
             if (result.join("") === "ggggg") {
                 enemy.solved = true;
             }
             gameData.promises.push(updateEnemy(enemy, guess));
         });
     Promise.all(gameData.promises).then((values) => {
-        // this removes the empty class from the just used guesses
+        // this removes the empty class from the just used guess elements
         values.forEach((value) => value.classList.remove("empty"));
         document.querySelector("#guesser").value = "";
         gameData.guess++;
@@ -458,33 +486,8 @@ document.querySelector("#start").addEventListener("click", () => {
             word: solutions[wordIndex],
             results: [],
             solved: false,
-            intel: {
-                a: "?",
-                b: "?",
-                c: "?",
-                d: "?",
-                e: "?",
-                f: "?",
-                g: "?",
-                h: "?",
-                i: "?",
-                j: "?",
-                k: "?",
-                l: "?",
-                m: "?",
-                o: "?",
-                p: "?",
-                q: "?",
-                r: "?",
-                s: "?",
-                t: "?",
-                u: "?",
-                v: "?",
-                w: "?",
-                x: "?",
-                y: "?",
-                z: "?",
-            },
+            // store the whole alphabet in an object to make the keyboard. mmm
+            intel: structuredClone(alphabet),
         });
     }
     gameData.enemies.forEach((enemy) => {

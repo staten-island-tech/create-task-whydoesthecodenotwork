@@ -20,7 +20,7 @@ body.enraged {
     flex-direction: column;
     border: 2px solid #000000;
     flex-grow: 1;
-    align-content: center;
+    align-items: center;
     min-width: 10ch;
     background-color: #f5f5f5;
     padding: 0.5rem 0.5rem;
@@ -42,10 +42,11 @@ body.enraged {
 
 .guess {
     display: flex;
+    gap: 0.1rem;
 }
 
 /* letters of a word */
-.guess * {
+.letter {
     flex-wrap: wrap;
     display: flex;
     font-size: 1.5rem;
@@ -132,4 +133,26 @@ dialog#settings::backdrop {
 #reset {
     background-color: #ffaaaa;
     font-size: 2rem;
+}
+
+.keyboardToggle {
+    text-align: center;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 0.1rem;
+}
+
+.row .letter {
+    font-size: 1.25rem;
+    flex-grow: 1;
 }
