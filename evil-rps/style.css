@@ -1,0 +1,191 @@
+:root {
+    box-sizing: border-box;
+    --transitionLength: 500ms;
+    --dark: 0;
+    --tile: #000000;
+}
+
+body.enraged {
+    background-image: url("rage.gif");
+}
+
+body.enraged .enemy {
+    background-image: url("rage.gif");
+}
+#enemies {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.enemy {
+    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #000000;
+    flex-grow: 1;
+    align-items: center;
+    min-width: 20%;
+    background-color: #f5f5f5;
+    padding: 0.5rem 0.5rem;
+}
+
+.enemy.solved {
+    background-color: #d3d3d3;
+}
+
+.enemy h2 {
+    margin: 0 auto;
+    margin-bottom: 0.5rem;
+    text-decoration: underline black;
+}
+
+.guesses {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.guess.empty {
+    display: flex;
+}
+
+.guess {
+    display: flex;
+    gap: 0.1rem;
+}
+
+/* letters of a word */
+.letter {
+    flex-wrap: wrap;
+    display: flex;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    justify-content: center;
+    align-content: center;
+    border: 1px solid #000000;
+    color: var(--tile);
+    text-rendering: optimizeLegibility;
+}
+
+/* blank letters of a solved word */
+.solved .guess .e {
+    background-color: #808080;
+}
+
+/* blank letters of an unsolved word */
+.guess .e {
+    border: 1px dotted #000000;
+}
+
+.e {
+    background-color: white;
+}
+
+.g {
+    background-color: var(--correct);
+}
+.y {
+    background-color: var(--misplaced);
+}
+.m {
+    background-color: var(--incorrect);
+}
+
+h1 {
+    text-shadow: 1px -1px 0px #ff0000;
+    background-color: whitesmoke;
+}
+
+label {
+    display: flex;
+    align-items: center;
+}
+
+label * {
+    margin-left: 5px;
+}
+
+#guesser {
+    width: 5ch;
+    font-family: monospace;
+}
+
+dialog {
+    flex-direction: column;
+}
+
+dialog#continue#refreshing,
+dialog#gamemode::backdrop {
+    background-image: radial-gradient(#ffffff, #000000);
+    opacity: 1;
+}
+
+dialog#settings::backdrop {
+    display: none;
+}
+
+#dimmer {
+    pointer-events: none;
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    opacity: var(--dark);
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#reset {
+    background-color: #ffaaaa;
+    font-size: 2rem;
+}
+
+.keyboardToggle {
+    text-align: center;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 0.1rem;
+}
+
+.row .letter {
+    font-size: 1.25rem;
+    flex-grow: 1;
+}
+
+#focusinput {
+    position: fixed;
+    right: 1vh;
+    bottom: 1vh;
+    font-size: 2rem;
+    border: 2px solid #000000;
+}
+
+#input {
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: #000000 2px solid;
+    border-bottom: #000000 2px solid;
+    display: flex;
+}
+
+#input * {
+    font-size: 2rem;
+}
+
+#input #submit {
+    flex-grow: 1;
+}
