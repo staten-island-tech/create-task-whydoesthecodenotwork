@@ -79,11 +79,14 @@ function updateHTML() {
 }
 
 function checkGuess(guess, word) {
+    // split words into arrays
     const g = guess.split("");
     let w = word.split("");
+    // create an array that will store the result with miss being the default
     const r = Array(g.length).fill("m");
     // check for greens first
     for (let i = 0; i < g.length; i++) {
+        // direct match between letters
         if (g[i] === w[i]) {
             // clear the matched letter from word to prevent it from matching any other letters in guess
             w[i] = 0;
@@ -105,6 +108,7 @@ function checkGuess(guess, word) {
             }
         }
     }
+    // return array containing results of guess as colors
     return r;
 }
 
@@ -467,15 +471,18 @@ document.querySelector("#toggleKeyboards").addEventListener("click", () => {
 
 document.querySelector("#gamemode").style.display = "flex";
 document.querySelector("#gamemode").showModal();
+
 document.querySelector("#gamemodeSelector").addEventListener("change", () => {
     document.querySelector("#enemyCount").value = document.querySelector("#gamemodeSelector").value;
     document.querySelector("#guessCount").value = [6, 7, 8, 9, 13, 21][document.querySelector("#gamemodeSelector").selectedIndex];
 });
+
 function blankPreset() {
     document.querySelector("#gamemodeSelector").value = "";
 }
 document.querySelector("#enemyCount").addEventListener("input", blankPreset);
 document.querySelector("#guessCount").addEventListener("input", blankPreset);
+
 document.querySelector("#start").addEventListener("click", () => {
     document.querySelector("#enemies").replaceChildren();
     gameData.maxGuesses = document.querySelector("#guessCount").value;
