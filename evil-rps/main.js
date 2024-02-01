@@ -293,7 +293,7 @@ function promptContinue(gaming) {
     const prompt = document.querySelector("#continue");
     prompt.innerHTML = `
     <h2>${gaming ? "congratulations you're winner" : "you did NOT win"}</h2>
-    <h3>you ${gaming ? "got the word" : "did NOT get the word"} in ${gameData.guess} guess${gameData.guesses > 1 ? "es" : ""}</h3>
+    <h3>you ${gaming ? "got the word" : "did NOT get the word"} in ${gameData.guess} guess${gameData.guess > 1 ? "es" : ""}</h3>
     <button id="promptRefresh">continue gaming</button>
     <button id="promptClose">ok</button>
     `;
