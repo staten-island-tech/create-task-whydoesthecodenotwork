@@ -16,8 +16,10 @@
             <input id="guesser" type="text" placeholder="guess" spellcheck="false" minlength="5" maxlength="5" title="enter your guess here" />
             <input id="submit" type="submit" value="submit your guess" />
         </form>
-        <button id="toggleKeyboards">toggle ALL keyboards</button>
-        <button id="openSettings">open settings</button>
+        <div id="controls">
+            <button id="toggleKeyboards">toggle ALL keyboards</button>
+            <button id="openSettings">open settings</button>
+        </div>
         <dialog id="gamemode">
             <h2>pre-game setup</h2>
             <label
@@ -88,7 +90,6 @@
         </dialog>
         <dialog id="continue"></dialog>
         <div id="dimmer"></div>
-        <button id="focusinput">jump to guessing</button>
     </body>
     <script type="module" src="/main.js"></script>
 </html>
