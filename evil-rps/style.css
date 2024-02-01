@@ -3,14 +3,15 @@
     --transitionLength: 500ms;
     --dark: 0;
     --tile: #000000;
+    --cursor: wait;
 }
 
 body.enraged {
-    background-image: url("rage.gif");
+    background-image: url("/rage.gif");
 }
 
 body.enraged .enemy {
-    background-image: url("rage.gif");
+    background-image: url("/rage.gif");
 }
 #enemies {
     display: flex;
@@ -166,26 +167,34 @@ dialog#settings::backdrop {
     flex-grow: 1;
 }
 
-#focusinput {
-    position: fixed;
-    right: 1vh;
-    bottom: 1vh;
-    font-size: 2rem;
-    border: 2px solid #000000;
-}
-
 #input {
-    margin: 1rem 0;
-    padding: 1rem 0;
-    border-top: #000000 2px solid;
-    border-bottom: #000000 2px solid;
     display: flex;
+    position: sticky;
+    width: 100%;
+    bottom: 0;
 }
 
 #input * {
     font-size: 2rem;
 }
 
+#input #guesser {
+    border: 2px inset;
+}
+
 #input #submit {
     flex-grow: 1;
+}
+
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#controls button {
+    flex-grow: 1;
+}
+
+*:disabled {
+    cursor: var(--cursor);
 }

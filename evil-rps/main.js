@@ -224,7 +224,7 @@ document.querySelector("#submit").addEventListener("click", (event) => {
         }
     } else {
         if (!possibleGuesses.includes(guess)) {
-            alert("guess is NOT a valid word");
+            alert(`"${guess}" is NOT a valid word`);
             if (settings.invalidPenalty) {
                 document.querySelector("#guesser").value = "💀";
                 guess = "-----";
@@ -289,6 +289,8 @@ function promptContinue(gaming) {
     // if player finished playing daily mode, they shouldn't be told to play daily mode again
     settings.daily = false;
     saveSettings();
+    // turn disabled buttons from hourglass to stop
+    document.documentElement.style.setProperty("--cursor", "not-allowed");
     // gaming is bool representing if player won
     const prompt = document.querySelector("#continue");
     prompt.innerHTML = `
@@ -304,8 +306,8 @@ function promptContinue(gaming) {
     });
     prompt.querySelector("#promptClose").addEventListener("click", () => {
         // still give the player an option to restart
-        refresh.innerHTML = "restart the game";
-        document.body.after(refresh);
+        refresh.innerHTML = "<b>refresh the game</b>";
+        document.querySelector("#controls").insertAdjacentElement("beforeend", refresh);
         prompt.close();
     });
     prompt.showModal();
@@ -406,7 +408,6 @@ function lock() {
     // all of these elements should share the same disabled state
     const isDisabled = document.querySelector("#guesser").disabled;
     document.querySelector("#guesser").disabled = !isDisabled;
-    document.querySelector("#focusinput").disabled = !isDisabled;
     document.querySelector("#submit").disabled = !isDisabled;
     document.querySelector("#openSettings").disabled = !isDisabled;
 }
@@ -465,10 +466,6 @@ document.querySelector("#gamemode").addEventListener("keydown", (event) => {
     }
 });
 
-document.querySelector("#focusinput").addEventListener("click", () => {
-    document.querySelector("#guesser").focus();
-});
-
 document.querySelector("#toggleKeyboards").addEventListener("click", () => {
     Array.from(document.querySelectorAll(".keyboardToggle")).forEach((summary) => {
         summary.open = !summary.open;
@@ -503,7 +500,7 @@ document.querySelector("#start").addEventListener("click", () => {
         if (settings.daily) {
             // I don't know how many numbers from 0-2308 this actually covers, but oh well
             wordIndex =
-                Math.ceil(time.getDate() * time.getFullYear() * (time.getMonth() + 1) * Math.pow(document.querySelector("#enemyCount").value, i)) % 2309;
+                Math.ceil(time.getDate() * time.getFullYear() * (time.getMonth() + 1) * Math.pow(document.querySelector("#enemyCount").value, i + 1)) % 2309;
         } else {
             if (gameData.indices.length > 0) {
                 const index = getRandomInt(0, gameData.indices.length - 1);
@@ -516,7 +513,6 @@ document.querySelector("#start").addEventListener("click", () => {
         }
         gameData.enemies.push({
             id: i,
-            // this is my awful solution to getting a random set of words every day. rng tables?? never heard of em
             word: solutions[wordIndex],
             results: [],
             solved: false,
