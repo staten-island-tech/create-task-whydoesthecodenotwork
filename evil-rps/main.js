@@ -289,6 +289,7 @@ function promptContinue(gaming) {
     // if player finished playing daily mode, they shouldn't be told to play daily mode again
     settings.daily = false;
     saveSettings();
+    document.querySelector("#openSettings").disabled = false;
     // turn disabled buttons from hourglass to stop
     document.documentElement.style.setProperty("--cursor", "not-allowed");
     // gaming is bool representing if player won
@@ -306,7 +307,7 @@ function promptContinue(gaming) {
     });
     prompt.querySelector("#promptClose").addEventListener("click", () => {
         // still give the player an option to restart
-        refresh.innerHTML = "<b>refresh the game</b>";
+        refresh.innerHTML = "<b>new game</b>";
         document.querySelector("#controls").insertAdjacentElement("beforeend", refresh);
         prompt.close();
     });
