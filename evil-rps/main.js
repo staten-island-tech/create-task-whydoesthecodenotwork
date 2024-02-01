@@ -6,7 +6,6 @@ function getRandomInt(min, max) {
 
 let gameData = {
     guess: 0,
-    guesses: [],
     maxGuesses: 0,
     enemies: [],
     promises: [],
@@ -24,6 +23,7 @@ let defaultSettings = {
     tile: "#000000",
     enraged: false,
     daily: true,
+    focus: true,
     // don't save the dark mode value because 1. i want to flashbang people and 2. if it gets too dark i don't want to make people get lost
 };
 
@@ -187,8 +187,6 @@ function spawnEnemy(id) {
 
 function createKeyboard(id) {
     const enemy = gameData.enemies[id];
-    console.log(enemy);
-    console.log("nuh uh");
     const rows = [
         ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
         ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
@@ -281,7 +279,9 @@ document.querySelector("#submit").addEventListener("click", (event) => {
             return;
         }
         lock();
-        // document.querySelector("#guesser").focus();
+        if (settings.focus) {
+            document.querySelector("#guesser").focus();
+        }
     });
 });
 
@@ -450,9 +450,15 @@ if (storageAvailable("localStorage")) {
     // load the settings
     if (localStorage.settings) {
         settings = JSON.parse(localStorage.settings);
+        if (Object.keys(settings).length !== Object.keys(defaultSettings).length) {
+            // oh goodness something's off, go nuclear
+            settings = structuredClone(defaultSettings);
+            saveSettings();
+        }
         updateHTML();
     }
 }
+
 document.querySelector("#gamemode").addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
         event.preventDefault();
