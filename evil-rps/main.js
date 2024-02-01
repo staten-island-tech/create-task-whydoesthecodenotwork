@@ -241,7 +241,7 @@ document.querySelector("#submit").addEventListener("click", (event) => {
         .filter((enemy) => {
             return !enemy.solved;
         })
-        .forEach(async (enemy) => {
+        .forEach((enemy) => {
             const result = checkGuess(guess, enemy.word);
             enemy.results.push(result);
             for (let i = 0; i < 5; i++) {
