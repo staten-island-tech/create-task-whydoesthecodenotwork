@@ -63,7 +63,7 @@ function updateSettings() {
 // updates html elements based on settings object. this doesn't touch dark
 function updateHTML() {
     Object.keys(settings).forEach((key) => {
-        const element = document.querySelector(`#${key}`);
+        const element = document.getElementById(key);
         switch (element.type) {
             case "checkbox":
                 element.checked = settings[key];
@@ -172,6 +172,13 @@ function spawnEnemy(id) {
             `
         );
     }
+    if (gameData.enemies.length > 1) {
+        enemyElement.querySelector(".guesses").insertAdjacentHTML(
+            "beforebegin",
+            `
+        <h2>word ${id + 1}</h2>`
+        );
+    }
 }
 
 function createKeyboard(id) {
@@ -270,12 +277,12 @@ document.querySelector("#submit").addEventListener("click", (event) => {
             return;
         }
         lock();
-        document.querySelector("#guesser").focus();
+        // document.querySelector("#guesser").focus();
     });
 });
 
 function promptContinue(gaming) {
-    // if player wins in daily mode, they shouldn't be told to play daily mode again
+    // if player finished playing daily mode, they shouldn't be told to play daily mode again
     settings.daily = false;
     saveSettings();
     // gaming is bool representing if player won
@@ -395,6 +402,7 @@ function lock() {
     // all of these elements should share the same disabled state
     const isDisabled = document.querySelector("#guesser").disabled;
     document.querySelector("#guesser").disabled = !isDisabled;
+    document.querySelector("#focusinput").disabled = !isDisabled;
     document.querySelector("#submit").disabled = !isDisabled;
     document.querySelector("#openSettings").disabled = !isDisabled;
 }
@@ -446,6 +454,17 @@ document.querySelector("#gamemode").addEventListener("keydown", (event) => {
         event.preventDefault();
     }
 });
+
+document.querySelector("#focusinput").addEventListener("click", () => {
+    document.querySelector("#guesser").focus();
+});
+
+document.querySelector("#toggleKeyboards").addEventListener("click", () => {
+    Array.from(document.querySelectorAll(".keyboardToggle")).forEach((summary) => {
+        summary.open = !summary.open;
+    });
+});
+
 document.querySelector("#gamemode").style.display = "flex";
 document.querySelector("#gamemode").showModal();
 document.querySelector("#gamemodeSelector").addEventListener("change", () => {
@@ -469,7 +488,9 @@ document.querySelector("#start").addEventListener("click", () => {
     for (let i = 0; i < document.querySelector("#enemyCount").value; i++) {
         let wordIndex = 0;
         if (settings.daily) {
-            wordIndex = Math.ceil((time.getDate() * time.getFullYear() * (time.getMonth() + 1)) / (i + document.querySelector("#enemyCount").value)) % 2309;
+            // I don't know how many numbers from 0-2308 this actually covers, but oh well
+            wordIndex =
+                Math.ceil(time.getDate() * time.getFullYear() * (time.getMonth() + 1) * Math.pow(document.querySelector("#enemyCount").value, i)) % 2309;
         } else {
             if (gameData.indices.length > 0) {
                 const index = getRandomInt(0, gameData.indices.length - 1);

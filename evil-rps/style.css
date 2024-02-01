@@ -9,6 +9,9 @@ body.enraged {
     background-image: url("rage.gif");
 }
 
+body.enraged .enemy {
+    background-image: url("rage.gif");
+}
 #enemies {
     display: flex;
     flex-wrap: wrap;
@@ -21,13 +24,19 @@ body.enraged {
     border: 2px solid #000000;
     flex-grow: 1;
     align-items: center;
-    min-width: 10ch;
+    min-width: 20%;
     background-color: #f5f5f5;
     padding: 0.5rem 0.5rem;
 }
 
 .enemy.solved {
     background-color: #d3d3d3;
+}
+
+.enemy h2 {
+    margin: 0 auto;
+    margin-bottom: 0.5rem;
+    text-decoration: underline black;
 }
 
 .guesses {
@@ -154,5 +163,29 @@ dialog#settings::backdrop {
 
 .row .letter {
     font-size: 1.25rem;
+    flex-grow: 1;
+}
+
+#focusinput {
+    position: fixed;
+    right: 1vh;
+    bottom: 1vh;
+    font-size: 2rem;
+    border: 2px solid #000000;
+}
+
+#input {
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: #000000 2px solid;
+    border-bottom: #000000 2px solid;
+    display: flex;
+}
+
+#input * {
+    font-size: 2rem;
+}
+
+#input #submit {
     flex-grow: 1;
 }
