@@ -37,8 +37,9 @@
             <details>
                 <summary>advanced settings</summary>
                 <small>notice: settings relating to appearance are accessible in-game</small>
-                <label>how many words will you be solving?<input type="number" name="enemyCount" id="enemyCount" value="1" /></label>
-                <label>how many guesses do you want?<input type="number" name="guessCount" id="guessCount" value="6" /></label>
+                <!-- min/step don't actually do any validation here -->
+                <label>how many words will you be solving?<input type="number" name="enemyCount" id="enemyCount" value="1" min="1" step="1"/></label>
+                <label>how many guesses do you want?<input type="number" name="guessCount" id="guessCount" value="6" min="1" step="1"/></label>
             </details>
             <a href="https://www.youtube.com/watch?v=lv4Zg-209MY" target="_blank">HELP! I don't know how to play Wordle!</a>
             <a href="https://www.youtube.com/watch?v=NmF8B2HBzec" target="_blank">HELP! I don't know how to play multiple Wordles at once!</a>
