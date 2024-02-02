@@ -1,9 +1,10 @@
 :root {
     box-sizing: border-box;
-    --transitionLength: 500ms;
-    --dark: 0;
-    --tile: #000000;
     --cursor: wait;
+}
+
+body {
+    background-color: var(--background);
 }
 
 body.enraged {
@@ -22,11 +23,11 @@ body.enraged .enemy {
     flex-wrap: wrap;
     display: flex;
     flex-direction: column;
-    border: 2px solid #000000;
+    border: 2px solid var(--border);
     flex-grow: 1;
     align-items: center;
     min-width: 20%;
-    background-color: #f5f5f5;
+    background-color: var(--word);
     padding: 0.5rem 0.5rem;
 }
 
@@ -80,7 +81,7 @@ body.enraged .enemy {
 }
 
 .e {
-    background-color: white;
+    background-color: var(--empty);
 }
 
 .g {
