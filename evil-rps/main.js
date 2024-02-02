@@ -20,6 +20,10 @@ let defaultSettings = {
     correct: "#00ff00",
     misplaced: "#ffff00",
     incorrect: "#bbbbbb",
+    empty: "#ffffff",
+    background: "#ffffff",
+    word: "#f5f5f5",
+    border: "#000000",
     tile: "#000000",
     enraged: false,
     daily: true,
@@ -57,6 +61,10 @@ function updateSettings() {
     document.documentElement.style.setProperty("--correct", settings.correct);
     document.documentElement.style.setProperty("--misplaced", settings.misplaced);
     document.documentElement.style.setProperty("--incorrect", settings.incorrect);
+    document.documentElement.style.setProperty("--empty", settings.empty);
+    document.documentElement.style.setProperty("--background", settings.background);
+    document.documentElement.style.setProperty("--word", settings.word);
+    document.documentElement.style.setProperty("--border", settings.border);
     document.documentElement.style.setProperty("--tile", settings.tile);
 }
 
@@ -286,20 +294,23 @@ document.querySelector("#submit").addEventListener("click", (event) => {
 });
 
 function promptContinue(gaming) {
-    // if player finished playing daily mode, they shouldn't be told to play daily mode again
-    settings.daily = false;
-    saveSettings();
+    // gaming is bool representing if player won
+    // undisable settings, but all other buttons stay disabled
     document.querySelector("#openSettings").disabled = false;
     // turn disabled buttons from hourglass to stop
     document.documentElement.style.setProperty("--cursor", "not-allowed");
-    // gaming is bool representing if player won
     const prompt = document.querySelector("#continue");
     prompt.innerHTML = `
     <h2>${gaming ? "congratulations you're winner" : "you did NOT win"}</h2>
-    <h3>you ${gaming ? "got the word" : "did NOT get the word"} in ${gameData.guess} guess${gameData.guess > 1 ? "es" : ""}</h3>
+    <h3>you ${gaming ? "got" : "did NOT get"} ${settings.daily ? "today's" : "the"} word${gameData.enemies.length > 1 ? "s" : ""} in ${gameData.guess} guess${
+        gameData.guess > 1 ? "es" : ""
+    }</h3>
     <button id="promptRefresh">continue gaming</button>
     <button id="promptClose">ok</button>
     `;
+    // if player finished playing daily mode, they shouldn't be told to play daily mode again
+    settings.daily = false;
+    saveSettings();
     const refresh = prompt.querySelector("#promptRefresh");
     refresh.addEventListener("click", () => {
         // EVIL way of restarting the game (it refreshes the page haha)
@@ -320,11 +331,7 @@ document.querySelector("#guesser").addEventListener("input", () => {
     // nothing here supports uppercase
     guess = guess.toLowerCase();
 
-    // remove the spaces because they are EVIL
-    guess = guess.replace(" ", "");
-
     // do NOT go over 5 letters
-    // yes the input field has maxlength but uhhhhhhh never trust the user or something
     if (guess.length > 5) {
         guess = guess.slice(0, 5);
     }
