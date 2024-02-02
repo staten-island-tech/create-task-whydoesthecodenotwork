@@ -496,6 +496,9 @@ document.querySelector("#guessCount").addEventListener("input", blankPreset);
 
 document.querySelector("#start").addEventListener("click", () => {
     document.querySelector("#enemies").replaceChildren();
+    // turns out numbers <1 do not end well
+    document.querySelector("#guessCount").value = Math.max(1, Math.ceil(document.querySelector("#guessCount").value));
+    document.querySelector("#enemyCount").value = Math.max(1, Math.ceil(document.querySelector("#enemyCount").value));
     gameData.maxGuesses = document.querySelector("#guessCount").value;
     const time = new Date(Date.now());
     // fill array that we will pick from
