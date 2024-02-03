@@ -205,16 +205,14 @@ function createKeyboard(id) {
     // new Array(3).fill([]) makes all arrays of output be the same because fill just does that
     let output = [[], [], []];
 
-    // EVIL nested foreach with I counter
-    let i = 0;
-    rows.forEach((row) => {
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         output[i] = row
             .map((letter) => {
                 return `<span class='${enemy.intel[letter]} letter'>${letter}</span>`;
             })
             .join("");
-        i++;
-    });
+    }
 
     return `<div class="row">${output[0]}</div>
     <div class="row">${output[1]}</div>
@@ -329,6 +327,7 @@ function promptContinue(gaming) {
         // EVIL way of restarting the game (it refreshes the page haha)
         location.reload();
     });
+    refresh.focus();
     prompt.querySelector("#promptClose").addEventListener("click", () => {
         // still give the player an option to restart
         refresh.innerHTML = "<b>new game</b>";
