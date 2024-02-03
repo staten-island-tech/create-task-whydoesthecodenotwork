@@ -14,9 +14,15 @@ body.enraged {
 body.enraged .enemy {
     background-image: url("/rage.gif");
 }
+
 #enemies {
     display: flex;
     flex-wrap: wrap;
+}
+
+#enemies * {
+    color: var(--fontcolor);
+    text-decoration-color: var(--fontcolor);
 }
 
 .enemy {
@@ -32,7 +38,7 @@ body.enraged .enemy {
 }
 
 .enemy.solved {
-    background-color: #d3d3d3;
+    background-color: var(--solvedword);
 }
 
 .enemy h2 {
@@ -66,7 +72,6 @@ body.enraged .enemy {
     justify-content: center;
     align-content: center;
     border: 1px solid #000000;
-    color: var(--tile);
     text-rendering: optimizeLegibility;
 }
 
@@ -125,6 +130,10 @@ dialog#gamemode::backdrop {
 
 dialog#settings::backdrop {
     display: none;
+}
+
+dialog#continue * {
+    margin: 0.5rem 0;
 }
 
 #dimmer {
