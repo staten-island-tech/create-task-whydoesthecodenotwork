@@ -23,8 +23,9 @@ let defaultSettings = {
     empty: "#ffffff",
     background: "#ffffff",
     word: "#f5f5f5",
+    solvedword: "#d3d3d3",
     border: "#000000",
-    tile: "#000000",
+    fontcolor: "#000000",
     enraged: false,
     daily: true,
     focus: true,
@@ -64,8 +65,9 @@ function updateSettings() {
     document.documentElement.style.setProperty("--empty", settings.empty);
     document.documentElement.style.setProperty("--background", settings.background);
     document.documentElement.style.setProperty("--word", settings.word);
+    document.documentElement.style.setProperty("--solvedword", settings.solvedword);
     document.documentElement.style.setProperty("--border", settings.border);
-    document.documentElement.style.setProperty("--tile", settings.tile);
+    document.documentElement.style.setProperty("--fontcolor", settings.fontcolor);
 }
 
 // updates html elements based on settings object. this doesn't touch dark
@@ -299,12 +301,21 @@ function promptContinue(gaming) {
     document.querySelector("#openSettings").disabled = false;
     // turn disabled buttons from hourglass to stop
     document.documentElement.style.setProperty("--cursor", "not-allowed");
+    const words = gameData.enemies.map((enemy) => {
+        return `<li><a href="https://www.merriam-webster.com/dictionary/${enemy.word}" target="_blank">see the definition for word ${enemy.id + 1}: ${
+            enemy.word
+        }</a></li>`;
+    });
     const prompt = document.querySelector("#continue");
     prompt.innerHTML = `
     <h2>${gaming ? "congratulations you're winner" : "you did NOT win"}</h2>
     <h3>you ${gaming ? "got" : "did NOT get"} ${settings.daily ? "today's" : "the"} word${gameData.enemies.length > 1 ? "s" : ""} in ${gameData.guess} guess${
         gameData.guess > 1 ? "es" : ""
     }</h3>
+    <details>
+        <summary>see definition${gameData.enemies.length > 1 ? "s" : ""}</summary>
+        <ol>${words.join("")}</ol>
+    </details>
     <button id="promptRefresh">continue gaming</button>
     <button id="promptClose">ok</button>
     `;
@@ -459,7 +470,8 @@ if (storageAvailable("localStorage")) {
     // load the settings
     if (localStorage.settings) {
         settings = JSON.parse(localStorage.settings);
-        if (Object.keys(settings).length !== Object.keys(defaultSettings).length) {
+        // js compares these by objects so have to join them into string
+        if (Object.keys(settings).join("") !== Object.keys(defaultSettings).join("")) {
             // oh goodness something's off, go nuclear
             settings = structuredClone(defaultSettings);
             saveSettings();
