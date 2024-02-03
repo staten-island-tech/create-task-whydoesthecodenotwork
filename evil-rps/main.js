@@ -208,9 +208,11 @@ function createKeyboard(id) {
     // EVIL nested foreach with I counter
     let i = 0;
     rows.forEach((row) => {
-        row.forEach((letter) => {
-            output[i] += `<span class='${enemy.intel[letter]} letter'>${letter}</span>`;
-        });
+        output[i] = row
+            .map((letter) => {
+                return `<span class='${enemy.intel[letter]} letter'>${letter}</span>`;
+            })
+            .join("");
         i++;
     });
 
